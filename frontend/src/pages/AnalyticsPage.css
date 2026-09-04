@@ -1,0 +1,242 @@
+/* AnalyticsPage Animations and Styles */
+
+/* Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============ Hero Section Animations ============ */
+
+@keyframes heroScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.fade-in-hero {
+  animation: heroScale 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Count-up animation for metric numbers */
+@keyframes countUp {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.count-up {
+  animation: countUp 1s ease-out 0.3s both;
+}
+
+/* Support metrics fade in */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-support {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.stagger-1 { animation-delay: 0.2s; }
+.stagger-2 { animation-delay: 0.3s; }
+.stagger-3 { animation-delay: 0.4s; }
+.stagger-4 { animation-delay: 0.5s; }
+
+/* ============ Chart Animations ============ */
+
+@keyframes fadeInChart {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-chart {
+  animation: fadeInChart 0.7s ease-out forwards;
+}
+
+/* Vertical bar chart growth animation */
+@keyframes chartBarGrow {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+.chart-bar-vertical {
+  animation: chartBarGrow 0.6s ease-out both;
+  transform-origin: bottom;
+  transition: filter 0.3s ease-out;
+}
+
+.chart-bar-vertical:hover {
+  filter: brightness(1.2);
+}
+
+/* Topic performance radar chart */
+.radar-grid {
+  fill: none;
+  stroke: #3a3a42;
+  stroke-width: 1;
+}
+
+.radar-axis {
+  stroke: #3a3a42;
+  stroke-width: 1;
+}
+
+.radar-area {
+  fill: rgba(217, 118, 118, 0.18);
+  stroke: #d97676;
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: radarReveal 0.7s ease-out both;
+}
+
+.radar-point {
+  fill: #d97676;
+  stroke: #1a1a1e;
+  stroke-width: 2;
+}
+
+.radar-hit-area {
+  fill: transparent;
+}
+
+.radar-topic {
+  cursor: pointer;
+}
+
+.radar-topic:focus {
+  outline: none;
+}
+
+.radar-topic:focus .radar-point,
+.radar-topic:hover .radar-point {
+  fill: #e8888b;
+  r: 6;
+}
+
+.radar-label,
+.radar-scale {
+  font-size: 11px;
+  fill: #a8a8a8;
+}
+
+.radar-scale {
+  fill: #7a7a80;
+  font-size: 9px;
+}
+
+.radar-tooltip rect {
+  fill: #242429;
+  stroke: #4a4a54;
+}
+
+.radar-tooltip text {
+  fill: #f5f3f0;
+  font-size: 11px;
+}
+
+@keyframes radarReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Horizontal bar growth animation */
+@keyframes barGrow {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: var(--bar-width, 100%);
+    opacity: 1;
+  }
+}
+
+/* Chart item slide animation */
+@keyframes chartItemSlide {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ============ Section Entrance Animations ============ */
+
+@keyframes fadeInSlide {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-section {
+  animation: fadeInSlide 0.6s ease-out forwards;
+}
+
+/* ============ Hover Effects ============ */
+
+.chart-bar-vertical {
+  cursor: pointer;
+}
+
+/* Subtle scale on hover for interactive elements */
+.bg-dark-surface.hover\:border-accent-primary:hover {
+  transition: all 0.2s ease-out;
+}
+
+/* ============ Responsive Chart Layout ============ */
+
+@media (max-width: 768px) {
+  .fade-in-hero {
+    animation: heroScale 0.7s ease-out forwards;
+  }
+
+  .fade-in-chart {
+    animation: fadeInChart 0.6s ease-out forwards;
+  }
+}
