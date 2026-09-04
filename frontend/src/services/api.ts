@@ -90,6 +90,24 @@ export const apiClient = {
     return request('/resumes', { method: 'GET' });
   },
 
+  async getResumeFile(resumeId: number): Promise<Blob> {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_BASE_URL}/resumes/${resumeId}/file`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new APIError(response.status, errorData.detail || 'Could not open resume');
+    }
+
+    return response.blob();
+  },
+
+  async deleteResume(resumeId: number): Promise<void> {
+    return request(`/resumes/${resumeId}`, { method: 'DELETE' });
+  },
+
   // Interviews
   async createInterview(targetRole: string, resumeId?: number): Promise<types.InterviewResponse> {
     return request('/interviews', {

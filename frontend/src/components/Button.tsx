@@ -16,7 +16,7 @@ export function Button({
   ...props
 }: ButtonProps) {
   const baseStyles =
-    'font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-offset-dark-base focus:ring-accent-primary flex items-center justify-center gap-2';
+    'font-medium rounded-md transition-all duration-200 focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-offset-dark-base focus:ring-accent-primary flex items-center justify-center gap-2';
 
   const sizeStyles = {
     sm: 'px-3 py-1.5 text-sm',
@@ -26,11 +26,11 @@ export function Button({
 
   const variantStyles = {
     primary:
-      'bg-accent-primary text-dark-base hover:bg-accent-hover active:bg-accent-active disabled:opacity-60 disabled:cursor-not-allowed',
+      'bg-accent-primary text-dark-base hover:bg-accent-hover hover:shadow-sm active:bg-accent-active disabled:opacity-60 disabled:cursor-not-allowed',
     secondary:
-      'bg-dark-elevated border border-border-normal text-text-primary hover:bg-dark-hover active:bg-dark-elevated disabled:opacity-60 disabled:cursor-not-allowed',
+      'bg-dark-elevated border border-border-normal text-text-primary hover:bg-dark-hover hover:border-text-tertiary active:bg-dark-elevated disabled:opacity-60 disabled:cursor-not-allowed',
     ghost:
-      'text-accent-primary hover:text-accent-hover active:text-accent-active disabled:opacity-60 disabled:cursor-not-allowed',
+      'text-accent-primary hover:bg-dark-elevated hover:text-accent-hover hover:underline active:text-accent-active disabled:opacity-60 disabled:cursor-not-allowed',
   };
 
   return (

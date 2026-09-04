@@ -294,7 +294,7 @@ export function InterviewScreen() {
           <>
             {/* Question */}
             <div className="mb-12">
-              <p className="text-xs text-accent-primary uppercase tracking-widest font-semibold mb-4">
+              <p className="text-xs text-text-tertiary uppercase tracking-widest font-semibold mb-4">
                 {currentQuestion.topic}
               </p>
               <h2 className="text-3xl md:text-4xl font-bold text-text-primary leading-tight">

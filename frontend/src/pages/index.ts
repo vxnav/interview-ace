@@ -2,6 +2,7 @@ export { LoginPage } from './LoginPage';
 export { RegisterPage } from './RegisterPage';
 export { DashboardPage } from './DashboardPage';
 export { ResumeUploadPage } from './ResumeUploadPage';
+export { ResumesPage } from './ResumesPage';
 export { StartInterviewPage } from './StartInterviewPage';
 export { InterviewScreen } from './InterviewScreen';
 export { ResultsPage } from './ResultsPage';

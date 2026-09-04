@@ -103,18 +103,18 @@
 /* Topic performance radar chart */
 .radar-grid {
   fill: none;
-  stroke: #3a3a42;
+  stroke: var(--border-subtle);
   stroke-width: 1;
 }
 
 .radar-axis {
-  stroke: #3a3a42;
+  stroke: var(--border-subtle);
   stroke-width: 1;
 }
 
 .radar-area {
-  fill: rgba(217, 118, 118, 0.18);
-  stroke: #d97676;
+  fill: rgb(var(--color-accent-primary) / 0.16);
+  stroke: var(--accent-primary);
   stroke-width: 2;
   transform-box: fill-box;
   transform-origin: center;
@@ -122,8 +122,8 @@
 }
 
 .radar-point {
-  fill: #d97676;
-  stroke: #1a1a1e;
+  fill: var(--accent-primary);
+  stroke: var(--bg-surface);
   stroke-width: 2;
 }
 
@@ -141,28 +141,28 @@
 
 .radar-topic:focus .radar-point,
 .radar-topic:hover .radar-point {
-  fill: #e8888b;
+  fill: var(--accent-hover);
   r: 6;
 }
 
 .radar-label,
 .radar-scale {
   font-size: 11px;
-  fill: #a8a8a8;
+  fill: var(--text-secondary);
 }
 
 .radar-scale {
-  fill: #7a7a80;
+  fill: var(--text-tertiary);
   font-size: 9px;
 }
 
 .radar-tooltip rect {
-  fill: #242429;
-  stroke: #4a4a54;
+  fill: var(--bg-elevated);
+  stroke: var(--border-normal);
 }
 
 .radar-tooltip text {
-  fill: #f5f3f0;
+  fill: var(--text-primary);
   font-size: 11px;
 }
 

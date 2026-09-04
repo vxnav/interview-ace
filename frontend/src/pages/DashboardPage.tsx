@@ -55,11 +55,19 @@ export function DashboardPage() {
         <div className="mb-12 space-y-6">
           {/* Resume Upload */}
           <Card className="border-border-normal">
-            <div className="flex justify-between items-start">
+            <div className="flex justify-between items-start gap-4">
               <div>
                 <p className="text-xs text-text-tertiary uppercase tracking-widest font-semibold mb-2">Resume</p>
                 <p className="text-lg font-medium text-text-primary">Upload a resume</p>
-                <p className="text-text-secondary text-sm mt-1">Choose which resume to use when you begin an interview.</p>
+                <p className="text-text-secondary text-sm mt-1">Upload a resume to get personalized interview questions.</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/resumes')}
+                  className="mt-3 -ml-3"
+                >
+                  Your Resumes →
+                </Button>
               </div>
               <Button
                 variant="secondary"
@@ -72,9 +80,9 @@ export function DashboardPage() {
           </Card>
 
           {/* Primary CTA */}
-          <Card className="border-accent-primary border-opacity-30 bg-dark-elevated bg-opacity-50">
+          <Card className="border-border-normal bg-dark-elevated bg-opacity-50">
             <div className="mb-6">
-              <p className="text-xs text-accent-primary uppercase tracking-widest font-semibold mb-2">Start</p>
+              <p className="text-xs text-text-tertiary uppercase tracking-widest font-semibold mb-2">Start</p>
               <h2 className="text-2xl font-bold text-text-primary mb-2">
                 Begin a new interview
               </h2>
@@ -99,10 +107,10 @@ export function DashboardPage() {
             {/* Analytics Card - Only show if completed interviews exist */}
             {completedInterviews.length > 0 && (
               <div className="mb-6">
-                <Card className="border-accent-primary border-opacity-30 bg-dark-elevated bg-opacity-50">
+                <Card className="border-border-normal bg-dark-elevated bg-opacity-50">
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-xs text-accent-primary uppercase tracking-widest font-semibold mb-2">Insights</p>
+                      <p className="text-xs text-text-tertiary uppercase tracking-widest font-semibold mb-2">Insights</p>
                       <p className="text-lg font-medium text-text-primary">View your performance</p>
                       <p className="text-text-secondary text-sm mt-1">Track your progress and identify areas for improvement.</p>
                     </div>

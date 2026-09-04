@@ -1,4 +1,4 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './Button';
@@ -6,6 +6,16 @@ import { Button } from './Button';
 export function Navbar() {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    const savedTheme = localStorage.getItem('interviewace-theme');
+    if (savedTheme === 'dark' || savedTheme === 'light') return savedTheme;
+    return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    localStorage.setItem('interviewace-theme', theme);
+  }, [theme]);
 
   const handleLogout = () => {
     logout();
@@ -24,7 +34,19 @@ export function Navbar() {
           </div>
           <span>InterviewAce</span>
         </Link>
-        {isAuthenticated && (
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setTheme(currentTheme => currentTheme === 'dark' ? 'light' : 'dark')}
+            className="h-9 w-9 inline-flex items-center justify-center rounded-md border border-border-subtle text-text-secondary hover:bg-dark-elevated hover:text-accent-primary focus:outline-none focus:ring-1 focus:ring-accent-primary transition-colors"
+            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            <span aria-hidden="true" className="text-lg leading-none">
+              {theme === 'dark' ? <>&#9788;</> : <>&#9790;</>}
+            </span>
+          </button>
+          {isAuthenticated && (
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -34,7 +56,8 @@ export function Navbar() {
               Log out
             </Button>
           </div>
-        )}
+          )}
+        </div>
       </div>
     </nav>
   );

@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status, File, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
@@ -167,6 +168,76 @@ def get_resume(
         )
     
     return resume
+
+
+@router.get("/resumes/{resume_id}/file")
+def get_resume_file(
+    resume_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Return an uploaded resume file for its owner."""
+    import os
+
+    resume = db.query(models.Resume).filter(
+        models.Resume.id == resume_id
+    ).first()
+
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found",
+        )
+
+    if resume.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this resume",
+        )
+
+    if not os.path.isfile(resume.file_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume file not found",
+        )
+
+    return FileResponse(
+        resume.file_path,
+        filename=resume.original_filename or os.path.basename(resume.file_path),
+    )
+
+
+@router.delete("/resumes/{resume_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_resume(
+    resume_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Delete an uploaded resume owned by the current user."""
+    import os
+
+    resume = db.query(models.Resume).filter(
+        models.Resume.id == resume_id
+    ).first()
+
+    if not resume:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Resume not found",
+        )
+
+    if resume.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to delete this resume",
+        )
+
+    file_path = resume.file_path
+    db.delete(resume)
+    db.commit()
+
+    if os.path.isfile(file_path):
+        os.remove(file_path)
 
 
 # ============ Interview Routes ============

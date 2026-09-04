@@ -38,7 +38,5 @@ build/
 # Vite
 .vite/
 
-# Frontend plan
-FRONTEND_PLAN.md
 
 

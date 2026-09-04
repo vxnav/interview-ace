@@ -7,33 +7,32 @@ export default {
   theme: {
     extend: {
       colors: {
-        /* Dark Theme Palette */
         dark: {
-          base: '#0f0f11',
-          surface: '#1a1a1e',
-          elevated: '#242429',
-          hover: '#2e2e34',
+          base: 'rgb(var(--color-bg-base) / <alpha-value>)',
+          surface: 'rgb(var(--color-bg-surface) / <alpha-value>)',
+          elevated: 'rgb(var(--color-bg-elevated) / <alpha-value>)',
+          hover: 'rgb(var(--color-bg-hover) / <alpha-value>)',
         },
         accent: {
-          primary: '#d97676',
-          hover: '#e8888b',
-          active: '#c85959',
-          light: '#e8b4b4',
+          primary: 'rgb(var(--color-accent-primary) / <alpha-value>)',
+          hover: 'rgb(var(--color-accent-hover) / <alpha-value>)',
+          active: 'rgb(var(--color-accent-active) / <alpha-value>)',
+          light: 'rgb(var(--color-accent-light) / <alpha-value>)',
         },
         text: {
-          primary: '#f5f3f0',
-          secondary: '#a8a8a8',
-          tertiary: '#7a7a80',
+          primary: 'rgb(var(--color-text-primary) / <alpha-value>)',
+          secondary: 'rgb(var(--color-text-secondary) / <alpha-value>)',
+          tertiary: 'rgb(var(--color-text-tertiary) / <alpha-value>)',
         },
         border: {
-          subtle: '#3a3a42',
-          normal: '#4a4a54',
+          subtle: 'rgb(var(--color-border-subtle) / <alpha-value>)',
+          normal: 'rgb(var(--color-border-normal) / <alpha-value>)',
         },
         status: {
-          success: '#6bb896',
-          warning: '#e89b6f',
-          error: '#d97676',
-          info: '#7eb8d9',
+          success: 'rgb(var(--color-success) / <alpha-value>)',
+          warning: 'rgb(var(--color-warning) / <alpha-value>)',
+          error: 'rgb(var(--color-error) / <alpha-value>)',
+          info: 'rgb(var(--color-info) / <alpha-value>)',
         },
       },
       fontFamily: {
