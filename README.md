@@ -12,7 +12,7 @@ I built it to make interview practice less unstructured. Instead of preparing fr
 
 - JWT-based registration and login
 - Resume upload and text extraction from PDF, DOCX, and TXT files
-- Groq-powered generation of five role-based interview questions
+- Configurable Groq-powered interview generation: question type, difficulty, and 1-25 questions
 - Resume-aware questions when parsed resume text is available
 - Text answers and browser audio recording
 - Audio upload and transcription with Groq Whisper (`whisper-large-v3-turbo`)
@@ -22,13 +22,18 @@ I built it to make interview practice less unstructured. Instead of preparing fr
 - Safe retry of a saved answer when AI evaluation fails
 - Completed interview results and interview history
 - Analytics dashboard with an overall average, performance timeline, topic-performance radar chart, and strengths summary
+- Dashboard quick actions and compact recent interview sections linked to full history
+- Resume library with upload, view, and delete actions
+- Persistent light and dark themes
+- Profile page with account statistics, username editing, and password changes
 
 ## Interview Flow
 
 ```text
 Choose role (+ optional resume)
+	-> select interview type, question count, and difficulty
 	-> create interview
-	-> generate 5 questions with Groq
+	-> generate the configured questions with Groq
 	-> answer by text or audio
 	-> transcribe audio when needed
 	-> evaluate each answer
@@ -156,7 +161,9 @@ Open `http://localhost:5173` in a browser.
 All interview, resume, answer, result, and analytics endpoints require a JWT bearer token. Main endpoint groups:
 
 - `POST /auth/register`, `POST /auth/login`
-- `POST /resumes`, `GET /resumes`, `GET /resumes/{resume_id}`
+- `POST /resumes`, `GET /resumes`, `GET/DELETE /resumes/{resume_id}`
+- `GET /resumes/{resume_id}/file`
+- `GET/PATCH /users/me`, `PATCH /users/me/password`
 - `POST /interviews`, `GET /interviews`, `GET/PATCH /interviews/{interview_id}`
 - `POST /interviews/{interview_id}/generate-questions`
 - `GET/POST /interviews/{interview_id}/questions`
@@ -171,7 +178,7 @@ The API also exposes `GET /health` and generated docs at `/docs`.
 
 ## AI and Audio Pipeline
 
-Question generation sends the target role and, when available, parsed resume text to Groq. The response is validated as structured JSON before questions are saved. Generated questions use the app's current topic labels: technical, experience, behavioral, and project.
+Question generation sends the target role, selected interview type, selected difficulty, requested question count, and, when available, parsed resume text to Groq. The response is validated as structured JSON before questions are saved. Generated questions use the app's current topic labels: technical, experience, behavioral, and project.
 
 ```text
 Recorded browser audio
@@ -197,8 +204,8 @@ Text answers skip transcription and start at the saved-answer step. The evaluati
 
 ## Future Enhancements
 
-- Let users choose technical, behavioral, project, and experience topics, including multiple topic selections, before generating an interview.
 - Add targeted practice from analytics results.
-- Add richer resume management and interview settings.
+- Support selecting multiple question topics in one interview configuration.
+- Add richer interview settings and question review before starting.
 - Add deployment configuration, production storage, and tighter production CORS settings.
 - Add more automated API and UI test coverage.
