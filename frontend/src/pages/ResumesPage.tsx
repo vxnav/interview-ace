@@ -10,6 +10,7 @@ export function ResumesPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const hasReachedResumeLimit = resumes.length >= 10;
 
   const loadResumes = async () => {
     setIsLoading(true);
@@ -28,20 +29,13 @@ export function ResumesPage() {
   }, []);
 
   const handleViewResume = async (resume: ResumeResponse) => {
-    const resumeWindow = window.open('', '_blank', 'noopener,noreferrer');
-    if (!resumeWindow) {
-      setError('Your browser blocked the resume tab. Please allow pop-ups and try again.');
-      return;
-    }
-
+    setError('');
     try {
       const file = await apiClient.getResumeFile(resume.id);
       const fileUrl = URL.createObjectURL(file);
-      resumeWindow.location.href = fileUrl;
-      window.setTimeout(() => URL.revokeObjectURL(fileUrl), 60_000);
+      window.location.assign(fileUrl);
     } catch (err) {
-      resumeWindow.close();
-      setError(err instanceof APIError ? err.message : 'Could not open resume');
+      setError(err instanceof APIError ? err.message : 'Could not retrieve this resume. Please try again.');
     }
   };
 
@@ -70,7 +64,12 @@ export function ResumesPage() {
             <h1 className="text-4xl font-bold text-text-primary mb-2">Your Resumes</h1>
             <p className="text-text-secondary">Manage the resumes available when you begin an interview.</p>
           </div>
-          <Button variant="primary" onClick={() => navigate('/resume-upload')}>Upload Resume</Button>
+          <Button variant="primary" disabled={hasReachedResumeLimit} onClick={() => navigate('/resume-upload')}>Upload Resume</Button>
+        </div>
+
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <p className="text-sm text-text-tertiary">{resumes.length} / 10 resumes</p>
+          {hasReachedResumeLimit && <p className="text-sm text-status-error">You've reached the 10-resume limit. Delete a resume to upload another.</p>}
         </div>
 
         {error && <ErrorMessage message={error} onRetry={loadResumes} onDismiss={() => setError('')} />}
@@ -79,7 +78,7 @@ export function ResumesPage() {
           <Card className="border-border-subtle py-12 text-center">
             <p className="text-text-primary text-lg font-medium mb-2">No resumes uploaded</p>
             <p className="text-text-tertiary text-sm mb-6">Upload a resume to get personalized interview questions.</p>
-            <Button variant="secondary" onClick={() => navigate('/resume-upload')}>Upload Resume</Button>
+            <Button variant="secondary" disabled={hasReachedResumeLimit} onClick={() => navigate('/resume-upload')}>Upload Resume</Button>
           </Card>
         ) : (
           <div className="space-y-3">

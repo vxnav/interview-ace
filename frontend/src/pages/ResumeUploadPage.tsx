@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiClient, APIError } from '../services/api';
 import { Button, Card, ErrorMessage, LoadingSpinner } from '../components';
@@ -9,11 +9,29 @@ export function ResumeUploadPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [resume, setResume] = useState<ResumeResponse | null>(null);
+  const [resumeCount, setResumeCount] = useState<number | null>(null);
   const [selectedFileName, setSelectedFileName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const hasReachedResumeLimit = resumeCount !== null && resumeCount >= 10;
+
+  useEffect(() => {
+    const loadResumeCount = async () => {
+      try {
+        const resumes = await apiClient.getResumes();
+        setResumeCount(resumes.length);
+      } catch (err) {
+        setError(err instanceof APIError ? err.message : 'Failed to load resume information');
+      }
+    };
+    loadResumeCount();
+  }, []);
 
   const handleFile = async (file: File) => {
+    if (hasReachedResumeLimit) {
+      setError('You\'ve reached the 10-resume limit. Delete a resume to upload another.');
+      return;
+    }
     setError('');
     setSelectedFileName(file.name);
 
@@ -34,6 +52,7 @@ export function ResumeUploadPage() {
     try {
       const uploadedResume = await apiClient.uploadResume(file);
       setResume(uploadedResume);
+      setResumeCount(currentCount => currentCount === null ? currentCount : currentCount + 1);
     } catch (err) {
       const message = err instanceof APIError ? err.message : 'Upload failed';
       setError(message);
@@ -75,6 +94,7 @@ export function ResumeUploadPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-text-primary mb-2">Upload your resume</h1>
           <p className="text-text-secondary">We'll use it to make the questions actually relevant to you.</p>
+          {resumeCount !== null && <p className="text-sm text-text-tertiary mt-2">{resumeCount} / 10 resumes</p>}
         </div>
 
         {error && (
@@ -84,7 +104,13 @@ export function ResumeUploadPage() {
           />
         )}
 
-        {!resume ? (
+        {!resume && hasReachedResumeLimit ? (
+          <Card className="border-border-normal py-10 text-center">
+            <p className="text-text-primary font-medium mb-2">Resume limit reached</p>
+            <p className="text-text-secondary text-sm mb-5">You've reached the 10-resume limit. Delete a resume to upload another.</p>
+            <Button variant="secondary" onClick={() => navigate('/resumes')}>View Your Resumes</Button>
+          </Card>
+        ) : !resume ? (
           <div
             onDrop={handleDrop}
             onDragOver={handleDragOver}

@@ -17,6 +17,7 @@ from .utils import (
 
 
 router = APIRouter()
+MAX_RESUMES_PER_USER = 10
 
 
 # ============ Authentication Routes ============
@@ -136,6 +137,15 @@ async def upload_resume(
     """Upload a resume file for the authenticated user."""
     import os
     import uuid
+
+    resume_count = db.query(models.Resume).filter(
+        models.Resume.user_id == current_user.id
+    ).count()
+    if resume_count >= MAX_RESUMES_PER_USER:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="You can upload a maximum of 10 resumes. Delete an existing resume to upload another.",
+        )
     
     # Create uploads directory if it doesn't exist
     uploads_dir = "uploads/resumes"
@@ -1156,7 +1166,7 @@ async def evaluate_answer(
     except RuntimeError as error:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"LLM evaluation failed: {str(error)}",
+            detail="Evaluation could not be completed. Your answer was saved; please retry.",
         ) from error
 
     try:
