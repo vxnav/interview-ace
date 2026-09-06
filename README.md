@@ -186,16 +186,6 @@ Recorded browser audio
 
 Text answers skip transcription and start at the saved-answer step. The evaluation response contains two 0-100 scores, a filler-word count, and feedback.
 
-## Screenshots
-
-Replace these placeholders with project screenshots later.
-
-| Screen | Placeholder |
-| --- | --- |
-| Dashboard | `docs/screenshots/dashboard.png` |
-| Interview screen | `docs/screenshots/interview.png` |
-| Results | `docs/screenshots/results.png` |
-| Analytics | `docs/screenshots/analytics.png` |
 
 ## Current Limitations
 
