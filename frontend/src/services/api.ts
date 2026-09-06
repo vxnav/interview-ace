@@ -59,6 +59,27 @@ export const apiClient = {
     });
   },
 
+  async getCurrentUser(): Promise<types.UserResponse> {
+    return request('/users/me', { method: 'GET' });
+  },
+
+  async updateCurrentUser(username: string): Promise<types.UserResponse> {
+    return request('/users/me', {
+      method: 'PATCH',
+      body: JSON.stringify({ username }),
+    });
+  },
+
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    return request('/users/me/password', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
+    });
+  },
+
   // Resumes
   async uploadResume(file: File): Promise<types.ResumeResponse> {
     const formData = new FormData();
@@ -109,18 +130,31 @@ export const apiClient = {
   },
 
   // Interviews
-  async createInterview(targetRole: string, resumeId?: number): Promise<types.InterviewResponse> {
+  async createInterview(
+    targetRole: string,
+    resumeId: number | undefined,
+    interviewType: types.InterviewResponse['interview_type'],
+    numQuestions: number,
+    difficulty: types.InterviewResponse['difficulty'],
+  ): Promise<types.InterviewResponse> {
     return request('/interviews', {
       method: 'POST',
       body: JSON.stringify({
         target_role: targetRole,
         resume_id: resumeId || null,
+        interview_type: interviewType,
+        num_questions: numQuestions,
+        difficulty,
       }),
     });
   },
 
-  async getInterviews(): Promise<types.InterviewResponse[]> {
-    return request('/interviews', { method: 'GET' });
+  async getInterviews(status?: types.InterviewResponse['status'], limit?: number): Promise<types.InterviewResponse[]> {
+    const params = new URLSearchParams();
+    if (status) params.set('status_filter', status);
+    if (limit) params.set('limit', String(limit));
+    const query = params.size > 0 ? `?${params.toString()}` : '';
+    return request(`/interviews${query}`, { method: 'GET' });
   },
 
   async getInterview(interviewId: number): Promise<types.InterviewResponse> {

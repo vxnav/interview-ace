@@ -34,4 +34,14 @@ def create_tables() -> None:
 		with engine.begin() as connection:
 			connection.execute(text("DROP INDEX IF EXISTS ix_resumes_user_active"))
 			connection.execute(text("ALTER TABLE resumes DROP COLUMN is_active"))
+	interview_columns = {column["name"] for column in inspect(engine).get_columns("interviews")}
+	missing_columns = {
+		"interview_type": "VARCHAR(20) NOT NULL DEFAULT 'mixed'",
+		"num_questions": "INTEGER NOT NULL DEFAULT 5",
+		"difficulty": "VARCHAR(20) NOT NULL DEFAULT 'medium'",
+	}
+	with engine.begin() as connection:
+		for column_name, column_definition in missing_columns.items():
+			if column_name not in interview_columns:
+				connection.execute(text(f"ALTER TABLE interviews ADD COLUMN {column_name} {column_definition}"))
 

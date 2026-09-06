@@ -22,7 +22,9 @@ class AnswerEvaluation(BaseModel):
 async def generate_interview_questions(
     target_role: str,
     resume_data: Optional[dict] = None,
+    interview_type: str = "mixed",
     num_questions: int = 5,
+    difficulty: str = "medium",
 ) -> list[GeneratedQuestion]:
     """
     Generate tailored interview questions for a given role and optional resume.
@@ -47,7 +49,9 @@ async def generate_interview_questions(
     questions = await generate_questions_groq(
         target_role=target_role,
         resume_data=resume_data,
+        interview_type=interview_type,
         num_questions=num_questions,
+        difficulty=difficulty,
     )
     
     return questions

@@ -148,10 +148,28 @@ Return valid JSON only, with no additional text or markdown formatting."""
 def _build_user_message(
     target_role: str,
     resume_data: Optional[dict],
+    interview_type: str,
     num_questions: int,
+    difficulty: str,
 ) -> str:
     """Build the user message for the LLM request."""
-    message = f"Generate exactly {num_questions} interview questions for a {target_role} position.\n\n"
+    type_guidance = {
+        "mixed": "Use a balanced combination of technical, experience, behavioral, and project questions.",
+        "technical": "Make the questions primarily technical.",
+        "behavioral": "Make the questions behavioral.",
+        "experience": "Make the questions about the candidate's experience and background.",
+        "project": "Make the questions about projects, implementation decisions, and trade-offs.",
+    }
+    difficulty_guidance = {
+        "easy": "Use fundamentals and straightforward questions.",
+        "medium": "Use practical application and moderate reasoning.",
+        "hard": "Use deeper reasoning, edge cases, trade-offs, and more challenging questions.",
+    }
+    message = (
+        f"Generate exactly {num_questions} interview questions for a {target_role} position.\n"
+        f"Interview type: {interview_type}. {type_guidance[interview_type]}\n"
+        f"Difficulty: {difficulty}. {difficulty_guidance[difficulty]}\n\n"
+    )
     
     if resume_data:
         resume_text = resume_data.get("resume_text") if isinstance(resume_data, dict) else None
@@ -186,7 +204,9 @@ Return a JSON object with this exact structure (no markdown, no extra text):
 async def generate_questions_groq(
     target_role: str,
     resume_data: Optional[dict] = None,
+    interview_type: str = "mixed",
     num_questions: int = 5,
+    difficulty: str = "medium",
 ) -> list[GeneratedQuestion]:
     """
     Generate interview questions using Groq API.
@@ -215,7 +235,7 @@ async def generate_questions_groq(
     
     # Build prompts
     system_prompt = _build_system_prompt()
-    user_message = _build_user_message(target_role, resume_data, num_questions)
+    user_message = _build_user_message(target_role, resume_data, interview_type, num_questions, difficulty)
     
     # Call Groq API with strict structured output.
     try:
@@ -265,10 +285,8 @@ async def generate_questions_groq(
             "Response JSON 'questions' is not a list"
         )
     
-    if len(questions_data) == 0:
-        raise GroqResponseError(
-            "Groq returned zero questions"
-        )
+    if len(questions_data) != num_questions:
+        raise GroqResponseError(f"Groq returned {len(questions_data)} questions; expected exactly {num_questions}")
     
     # Convert to GeneratedQuestion objects
     questions = []

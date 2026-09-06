@@ -80,6 +80,51 @@ def login(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+@router.get("/users/me", response_model=schemas.UserResponse)
+def get_current_user_profile(
+    current_user: models.User = Depends(get_current_user),
+):
+    """Return the authenticated user's account information."""
+    return current_user
+
+
+@router.patch("/users/me", response_model=schemas.UserResponse)
+def update_current_user_profile(
+    update_data: schemas.UserUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update editable account information for the authenticated user."""
+    username = update_data.username.strip()
+    if not username:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Username cannot be blank",
+        )
+
+    current_user.username = username
+    db.commit()
+    db.refresh(current_user)
+    return current_user
+
+
+@router.patch("/users/me/password", status_code=status.HTTP_204_NO_CONTENT)
+def change_current_user_password(
+    password_data: schemas.PasswordChange,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Verify the current password and replace it with an Argon2 hash."""
+    if not verify_password(password_data.current_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+
+    current_user.password_hash = hash_password(password_data.new_password)
+    db.commit()
+
+
 # ============ Resume Routes ============
 
 @router.post("/resumes", response_model=schemas.ResumeResponse)
@@ -272,6 +317,9 @@ def create_interview(
         user_id=current_user.id,
         resume_id=interview_data.resume_id,
         target_role=interview_data.target_role,
+        interview_type=interview_data.interview_type,
+        num_questions=interview_data.num_questions,
+        difficulty=interview_data.difficulty,
         status=models.InterviewStatus.CREATED,
     )
     
@@ -285,6 +333,7 @@ def create_interview(
 @router.get("/interviews", response_model=list[schemas.InterviewListResponse])
 def list_interviews(
     status_filter: Optional[str] = None,
+    limit: Optional[int] = None,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -295,12 +344,22 @@ def list_interviews(
     
     if status_filter:
         query = query.filter(models.Interview.status == status_filter)
+
+    if limit is not None and not 1 <= limit <= 100:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Limit must be between 1 and 100",
+        )
     
-    interviews = query.order_by(models.Interview.created_at.desc()).all()
+    query = query.order_by(models.Interview.created_at.desc())
+    interviews = query.limit(limit).all() if limit is not None else query.all()
     return [
         schemas.InterviewListResponse(
             id=interview.id,
             target_role=interview.target_role,
+            interview_type=interview.interview_type,
+            num_questions=interview.num_questions,
+            difficulty=interview.difficulty,
             status=interview.status,
             overall_score=interview.overall_score,
             created_at=interview.created_at,
@@ -638,7 +697,9 @@ async def generate_questions(
         generated_questions = await generate_interview_questions(
             target_role=interview.target_role,
             resume_data=resume_data,
-            num_questions=5,
+            interview_type=interview.interview_type,
+            num_questions=interview.num_questions,
+            difficulty=interview.difficulty,
         )
     except GroqConfigError as e:
         raise HTTPException(

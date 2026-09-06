@@ -5,7 +5,8 @@ import { Button, Card, ErrorMessage, LoadingSpinner } from '../components';
 import { InterviewResponse } from '../types/api';
 
 export function DashboardPage() {
-  const [interviews, setInterviews] = useState<InterviewResponse[]>([]);
+  const [inProgressInterviews, setInProgressInterviews] = useState<InterviewResponse[]>([]);
+  const [completedInterviews, setCompletedInterviews] = useState<InterviewResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -18,8 +19,12 @@ export function DashboardPage() {
     setIsLoading(true);
     setError('');
     try {
-      const interviewsData = await apiClient.getInterviews();
-      setInterviews(interviewsData);
+      const [recentInProgress, recentCompleted] = await Promise.all([
+        apiClient.getInterviews('IN_PROGRESS', 4),
+        apiClient.getInterviews('COMPLETED', 4),
+      ]);
+      setInProgressInterviews(recentInProgress);
+      setCompletedInterviews(recentCompleted);
     } catch (err) {
       const message = err instanceof APIError ? err.message : 'Failed to load data';
       setError(message);
@@ -32,8 +37,11 @@ export function DashboardPage() {
     return <LoadingSpinner />;
   }
 
-  const completedInterviews = interviews.filter(i => i.status === 'COMPLETED');
-  const inProgressInterviews = interviews.filter(i => i.status === 'IN_PROGRESS');
+  const visibleInProgress = inProgressInterviews.slice(0, 3);
+  const visibleCompleted = completedInterviews.slice(0, 3);
+  const hasMoreInProgress = inProgressInterviews.length > 3;
+  const hasMoreCompleted = completedInterviews.length > 3;
+  const hasInterviews = inProgressInterviews.length > 0 || completedInterviews.length > 0;
 
   return (
     <div className="min-h-screen bg-dark-base">
@@ -50,6 +58,20 @@ export function DashboardPage() {
             onRetry={loadData}
           />
         )}
+
+        <div className="mb-10">
+          <p className="text-xs text-text-tertiary uppercase tracking-widest font-semibold mb-3">Quick actions</p>
+          <div className="flex flex-wrap gap-3">
+            <Button variant="primary" onClick={() => navigate('/start-interview')}>Start New Interview</Button>
+            <Button variant="secondary" onClick={() => navigate('/resume-upload')}>Upload Resume</Button>
+            {completedInterviews.length > 0 && (
+              <Button variant="secondary" onClick={() => navigate('/analytics')}>View Analytics</Button>
+            )}
+            {(completedInterviews.length > 0 || inProgressInterviews.length > 0) && (
+              <Button variant="secondary" onClick={() => navigate('/history')}>View History</Button>
+            )}
+          </div>
+        </div>
 
         {/* Main CTA Section */}
         <div className="mb-12 space-y-6">
@@ -102,7 +124,7 @@ export function DashboardPage() {
         </div>
 
         {/* Previous Interviews */}
-        {(completedInterviews.length > 0 || inProgressInterviews.length > 0) && (
+        {hasInterviews && (
           <div className="space-y-4">
             {/* Analytics Card - Only show if completed interviews exist */}
             {completedInterviews.length > 0 && (
@@ -126,50 +148,58 @@ export function DashboardPage() {
               </div>
             )}
 
-            <div>
-              <p className="text-xs text-text-tertiary uppercase tracking-widest font-semibold mb-4">Interview History</p>
-            </div>
-            {inProgressInterviews.map(interview => (
-              <div
-                key={interview.id}
-                className="border border-border-normal rounded-lg p-6 cursor-pointer hover:border-accent-primary hover:bg-dark-surface transition-all"
-                onClick={() => navigate(`/interview/${interview.id}`)}
-              >
-                <p className="font-semibold text-text-primary text-lg">{interview.target_role}</p>
-                <p className="text-text-tertiary text-sm mt-1">
-                  In progress · {interview.answered_question_count || 0}/{interview.question_count || 0} questions answered
-                </p>
-                <p className="text-accent-primary text-sm font-medium mt-4">Resume interview →</p>
-              </div>
-            ))}
-            {completedInterviews.map(interview => (
-              <div
-                key={interview.id}
-                className="bg-dark-surface border border-border-normal rounded-lg p-6 cursor-pointer hover:border-accent-primary hover:bg-dark-hover transition-all"
-                onClick={() => navigate(`/results/${interview.id}`)}
-              >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <p className="font-semibold text-text-primary text-lg">{interview.target_role}</p>
-                    <p className="text-text-tertiary text-sm mt-1">
-                      {new Date(interview.completed_at || '').toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-3xl font-bold text-accent-primary">{interview.overall_score}</p>
-                    <p className="text-xs text-text-tertiary mt-1">Score</p>
-                  </div>
+            {visibleInProgress.length > 0 && (
+              <section className="space-y-3 pt-2">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-xs text-text-tertiary uppercase tracking-widest font-semibold">Recent In-Progress Interviews</p>
+                  {hasMoreInProgress && <Button variant="ghost" size="sm" onClick={() => navigate('/history')}>See all →</Button>}
                 </div>
-              </div>
-            ))}
+                {visibleInProgress.map(interview => (
+                  <button
+                    key={interview.id}
+                    type="button"
+                    className="w-full text-left border border-border-normal rounded-md p-6 hover:border-accent-primary hover:bg-dark-surface focus:outline-none focus:ring-1 focus:ring-accent-primary transition-colors"
+                    onClick={() => navigate(`/interview/${interview.id}`)}
+                  >
+                    <p className="font-semibold text-text-primary text-lg">{interview.target_role}</p>
+                    <p className="text-text-tertiary text-sm mt-1">In progress · {interview.answered_question_count || 0}/{interview.question_count || 0} questions answered</p>
+                    <span className="inline-block text-accent-primary text-sm font-medium mt-4">Resume interview →</span>
+                  </button>
+                ))}
+              </section>
+            )}
+
+            {visibleCompleted.length > 0 && (
+              <section className="space-y-3 pt-6">
+                <div className="flex items-center justify-between gap-4">
+                  <p className="text-xs text-text-tertiary uppercase tracking-widest font-semibold">Recent Completed Interviews</p>
+                  {hasMoreCompleted && <Button variant="ghost" size="sm" onClick={() => navigate('/history')}>See all →</Button>}
+                </div>
+                {visibleCompleted.map(interview => (
+                  <button
+                    key={interview.id}
+                    type="button"
+                    className="w-full text-left bg-dark-surface border border-border-normal rounded-md p-6 hover:border-accent-primary hover:bg-dark-hover focus:outline-none focus:ring-1 focus:ring-accent-primary transition-colors"
+                    onClick={() => navigate(`/results/${interview.id}`)}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <p className="font-semibold text-text-primary text-lg">{interview.target_role}</p>
+                        <p className="text-text-tertiary text-sm mt-1">{new Date(interview.completed_at || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-3xl font-bold text-accent-primary">{interview.overall_score}</p>
+                        <p className="text-xs text-text-tertiary mt-1">Score</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </section>
+            )}
           </div>
         )}
 
-        {interviews.length === 0 && (
+        {!hasInterviews && (
           <Card className="text-center py-16 border-border-subtle">
             <p className="text-text-primary text-lg font-medium mb-3">No interviews yet</p>
             <p className="text-text-tertiary">Your first one is probably going to feel awkward.</p>

@@ -9,6 +9,7 @@ interface AuthContextType {
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
+  updateUser: (user: UserResponse) => void;
   clearError: () => void;
   isAuthenticated: boolean;
 }
@@ -41,15 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await apiClient.login(data);
       localStorage.setItem('token', response.access_token);
-      
-      // Note: Backend doesn't return user info on login, so we'll fetch it separately
-      // For MVP, we'll just store basic info from registration/login
-      const userInfo: UserResponse = {
-        id: 0, // Placeholder, would need separate endpoint
-        email: data.email,
-        username: '',
-        created_at: new Date().toISOString(),
-      };
+      const userInfo = await apiClient.getCurrentUser();
       setUser(userInfo);
       localStorage.setItem('user', JSON.stringify(userInfo));
     } catch (err) {
@@ -84,6 +77,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('user');
   };
 
+  const updateUser = (updatedUser: UserResponse) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
   const clearError = () => setError(null);
 
   return (
@@ -95,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        updateUser,
         clearError,
         isAuthenticated: !!user && !!localStorage.getItem('token'),
       }}

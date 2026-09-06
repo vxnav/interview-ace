@@ -36,6 +36,9 @@ export interface InterviewResponse {
   user_id: number;
   resume_id: number | null;
   target_role: string;
+  interview_type: 'mixed' | 'technical' | 'behavioral' | 'experience' | 'project';
+  num_questions: number;
+  difficulty: 'easy' | 'medium' | 'hard';
   status: 'CREATED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
   overall_score: number | null;
   created_at: string;

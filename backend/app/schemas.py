@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Any
+from typing import Literal, Optional, Any
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -25,6 +25,15 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UserUpdate(BaseModel):
+    username: str = Field(..., min_length=1, max_length=100)
+
+
+class PasswordChange(BaseModel):
+    current_password: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=8)
 
 
 class Token(BaseModel):
@@ -66,6 +75,9 @@ class ResumeListResponse(BaseModel):
 class InterviewCreate(BaseModel):
     target_role: str = Field(..., min_length=1, max_length=255)
     resume_id: Optional[int] = None
+    interview_type: Literal["mixed", "technical", "behavioral", "experience", "project"] = "mixed"
+    num_questions: int = Field(5, ge=1, le=25)
+    difficulty: Literal["easy", "medium", "hard"] = "medium"
 
 
 class InterviewUpdate(BaseModel):
@@ -78,6 +90,9 @@ class InterviewResponse(BaseModel):
     user_id: int
     resume_id: Optional[int] = None
     target_role: str
+    interview_type: str
+    num_questions: int
+    difficulty: str
     status: str
     overall_score: Optional[float] = None
     created_at: datetime
@@ -91,6 +106,9 @@ class InterviewResponse(BaseModel):
 class InterviewListResponse(BaseModel):
     id: int
     target_role: str
+    interview_type: str
+    num_questions: int
+    difficulty: str
     status: str
     overall_score: Optional[float] = None
     created_at: datetime

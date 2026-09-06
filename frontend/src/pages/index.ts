@@ -3,6 +3,8 @@ export { RegisterPage } from './RegisterPage';
 export { DashboardPage } from './DashboardPage';
 export { ResumeUploadPage } from './ResumeUploadPage';
 export { ResumesPage } from './ResumesPage';
+export { HistoryPage } from './HistoryPage';
+export { ProfilePage } from './ProfilePage';
 export { StartInterviewPage } from './StartInterviewPage';
 export { InterviewScreen } from './InterviewScreen';
 export { ResultsPage } from './ResultsPage';

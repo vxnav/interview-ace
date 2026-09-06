@@ -8,6 +8,8 @@ import {
   DashboardPage,
   ResumeUploadPage,
   ResumesPage,
+  HistoryPage,
+  ProfilePage,
   StartInterviewPage,
   InterviewScreen,
   ResultsPage,
@@ -47,6 +49,22 @@ function App() {
               element={
                 <AuthGuard>
                   <ResumesPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/history"
+              element={
+                <AuthGuard>
+                  <HistoryPage />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <AuthGuard>
+                  <ProfilePage />
                 </AuthGuard>
               }
             />
